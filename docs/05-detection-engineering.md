@@ -8,7 +8,7 @@ set -o pipefail
 sudo python3 scripts/test-lab-rules.py | tee wazuh-logtest-evidence.txt
 ```
 
-The Python runner opens a fresh Logtest session per case, saves the raw output through `tee`, and exits nonzero if any expected result differs. To test manually, open a fresh `sudo /var/ossec/bin/wazuh-logtest` session for each case and paste each fixture as one line. Phase 3 below is the expected rule match. Observed results for every case are `<FILL_FROM_LAB_RUN>`. Use [Active response](07-active-response.md) to verify alert delivery and enforcement.
+The Python runner opens a fresh Logtest session per case, verifies that each input reaches decoding, and checks the exact input position of every lab rule match. The SSH threshold case expects rule 100100 only on input eight. The command saves raw output through `tee` and exits nonzero if any case fails. To test manually, open a fresh `sudo /var/ossec/bin/wazuh-logtest` session for each case and paste each fixture as one line. Phase 3 below is the expected rule match. Observed results for every case are `<FILL_FROM_LAB_RUN>`. Use [Active response](07-active-response.md) to verify alert delivery and enforcement.
 
 ## 100100 · SSH authentication failures from the same source
 
