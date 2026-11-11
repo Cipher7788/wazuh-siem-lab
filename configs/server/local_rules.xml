@@ -1,0 +1,45 @@
+<group name="wazuh_siem_lab,">
+  <rule id="100100" level="12" frequency="8" timeframe="60">
+    <if_matched_sid>5760</if_matched_sid>
+    <same_srcip />
+    <description>SSH authentication failures from the same source</description>
+    <mitre><id>T1110</id></mitre>
+  </rule>
+
+  <rule id="100110" level="9">
+    <if_sid>61603</if_sid>
+    <field name="win.eventdata.image" type="pcre2">(?i)(?:^|\\)(?:powershell|pwsh)\.exe$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(?:^|\s)-(?:e|ec|enc|encodedcommand)(?:\s|:|$)</field>
+    <description>Encoded PowerShell command line</description>
+    <mitre><id>T1059.001</id></mitre>
+  </rule>
+
+  <rule id="100120" level="10">
+    <if_sid>61612</if_sid>
+    <field name="win.eventdata.targetImage" type="pcre2">(?i)(?:^|\\)lsass\.exe$</field>
+    <description>Process access targeting LSASS</description>
+    <mitre><id>T1003.001</id></mitre>
+  </rule>
+
+  <rule id="100130" level="8">
+    <if_sid>60228</if_sid>
+    <field name="win.system.providerName">^Microsoft-Windows-Security-Auditing$</field>
+    <field name="win.system.eventID">^4698$</field>
+    <description>Windows scheduled task created</description>
+    <mitre><id>T1053.005</id></mitre>
+  </rule>
+
+  <rule id="100140" level="9">
+    <if_sid>61615</if_sid>
+    <field name="win.eventdata.targetObject" type="pcre2">(?i)\\+(?:wow6432node\\+)?microsoft\\+windows\\+currentversion\\+run(?:once)?\\+[^\\]+$</field>
+    <description>Registry Run or RunOnce value set</description>
+    <mitre><id>T1547.001</id></mitre>
+  </rule>
+
+  <rule id="100150" level="8">
+    <if_sid>5902</if_sid>
+    <program_name>^useradd$</program_name>
+    <description>Linux local user created</description>
+    <mitre><id>T1136.001</id></mitre>
+  </rule>
+</group>

@@ -1,0 +1,5 @@
+<ossec_config>
+  <syscheck>
+    <directories check_all="yes" realtime="yes">/opt/wazuh-lab/fim</directories>
+  </syscheck>
+</ossec_config>

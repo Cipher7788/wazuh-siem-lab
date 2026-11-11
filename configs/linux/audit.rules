@@ -1,0 +1,3 @@
+-w /etc/passwd -p wa -k wazuh_lab_identity
+-w /etc/group -p wa -k wazuh_lab_identity
+-w /etc/shadow -p wa -k wazuh_lab_identity
