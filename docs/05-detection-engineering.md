@@ -1,15 +1,14 @@
 # Detection engineering
 
-Back up `/var/ossec/etc/rules/local_rules.xml` before installing [the lab rules](../configs/server/local_rules.xml). On a fresh manager, use the lab file as `local_rules.xml`. If there are existing local rules, retain the installed file and load this group from a separate `wazuh-siem-lab.xml` under the configured local rules directory. Confirm the IDs are free before copying.
+Apply the [lab rules](../configs/server/local_rules.xml) on the Wazuh manager. Confirm the rule IDs are free and the default local rules directory is enabled. If you previously copied the lab rules into the manager's `local_rules.xml`, remove that lab group from the old file before applying this script. The script manages `/var/ossec/etc/rules/wazuh-siem-lab.xml`, validates the configuration before restart, and restores the previous file if validation or restart fails.
 
 ```bash
-sudo cp -p /var/ossec/etc/rules/local_rules.xml /var/ossec/etc/rules/local_rules.xml.pre-lab
-sudo cp configs/server/local_rules.xml /var/ossec/etc/rules/local_rules.xml
-sudo /var/ossec/bin/wazuh-analysisd -t
-sudo systemctl restart wazuh-manager
+sudo bash scripts/apply-lab-rules.sh
+set -o pipefail
+sudo python3 scripts/test-lab-rules.py | tee wazuh-logtest-evidence.txt
 ```
 
-Open a fresh `sudo /var/ossec/bin/wazuh-logtest` session for each case. Paste the entire fixture as one line. Phase 3 below is the expected rule match. Observed results for every case are `<FILL_FROM_LAB_RUN>`. Logtest validates decoding and rule selection. Use [Active response](07-active-response.md) to verify alert delivery and enforcement.
+The Python runner opens a fresh Logtest session per case, saves the raw output through `tee`, and exits nonzero if any expected result differs. To test manually, open a fresh `sudo /var/ossec/bin/wazuh-logtest` session for each case and paste each fixture as one line. Phase 3 below is the expected rule match. Observed results for every case are `<FILL_FROM_LAB_RUN>`. Use [Active response](07-active-response.md) to verify alert delivery and enforcement.
 
 ## 100100 · SSH authentication failures from the same source
 

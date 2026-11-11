@@ -7,7 +7,7 @@ if [[ $# -ne 1 || ! $1 =~ ^4\.[0-9]+$ ]]; then
 fi
 
 umask 077
-install_dir=$(mktemp -d "$PWD/wazuh-install.XXXXXXXX")
+install_dir=$(mktemp -d "${TMPDIR:-/var/tmp}/wazuh-install.XXXXXXXX")
 printf 'Installer and generated credentials directory: %s\n' "$install_dir"
 cd "$install_dir"
 curl --fail --silent --show-error --location --output wazuh-install.sh \
