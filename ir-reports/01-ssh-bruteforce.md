@@ -14,6 +14,10 @@
 | --- | --- | --- |
 | `<FILL_FROM_LAB_RUN>` | `<FILL_FROM_LAB_RUN>` | `<FILL_FROM_LAB_RUN>` |
 
+## Logtest preflight
+
+On Wazuh 4.14.10, rule 100100 matched the eighth same-source event. Seven same-source events and eight events from distinct sources did not match rule 100100. Source evidence is the operator's VMware guest terminal output from the Logtest runner. The alert, firewall block, and firewall removal still need live evidence.
+
 ## IOCs and affected assets
 
 `<FILL_FROM_LAB_RUN>`

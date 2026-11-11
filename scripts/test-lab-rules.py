@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Replay the documented synthetic fixtures on the lab's Wazuh manager."""
 
+import argparse
 import re
 import subprocess
 from pathlib import Path
@@ -58,6 +59,13 @@ def run_case(label, events, expected_matches):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--linux-only",
+        action="store_true",
+        help="Run the SSH and Linux account cases. Validate Windows rules with agent telemetry.",
+    )
+    args = parser.parse_args()
     if not LOGTEST.is_file():
         raise SystemExit("Run this on the lab Wazuh manager after applying the rules.")
     fixtures = dict(
@@ -82,8 +90,11 @@ def main():
         ("SSH mixed source addresses", mixed_sources, []),
         ("SSH at threshold", [ssh_fixture] * 8, [(8, "100100")]),
     ]
-    checks.extend((rule_id, [fixtures[rule_id]], [(1, rule_id)]) for rule_id in RULE_IDS[1:])
+    rule_ids = ("100150",) if args.linux_only else RULE_IDS[1:]
+    checks.extend((rule_id, [fixtures[rule_id]], [(1, rule_id)]) for rule_id in rule_ids)
     results = [run_case(*check) for check in checks]
+    if args.linux_only:
+        print("SKIP: Windows EventChannel rules 100110, 100120, 100130, and 100140.")
     return 0 if all(results) else 1
 
 

@@ -5,10 +5,14 @@ Apply the [lab rules](../configs/server/local_rules.xml) on the Wazuh manager. C
 ```bash
 sudo bash scripts/apply-lab-rules.sh
 set -o pipefail
-sudo python3 scripts/test-lab-rules.py | tee wazuh-logtest-evidence.txt
+sudo python3 scripts/test-lab-rules.py --linux-only | tee wazuh-logtest-evidence.txt
 ```
 
-The Python runner opens a fresh Logtest session per case, verifies that each input reaches decoding, and checks the exact input position of every lab rule match. The SSH threshold case expects rule 100100 only on input eight. The command saves raw output through `tee` and exits nonzero if any case fails. To test manually, open a fresh `sudo /var/ossec/bin/wazuh-logtest` session for each case and paste each fixture as one line. Phase 3 below is the expected rule match. Observed results for every case are `<FILL_FROM_LAB_RUN>`. Use [Active response](07-active-response.md) to verify alert delivery and enforcement.
+The Python runner opens a fresh Logtest session per case, verifies that each input reaches decoding, and checks the exact input position of every lab rule match. The SSH threshold case expects rule 100100 only on input eight. The command saves raw output through `tee` and exits nonzero if any selected case fails. To test Linux cases manually, paste each fixture into a fresh `sudo /var/ossec/bin/wazuh-logtest` session.
+
+On Wazuh 4.14.10, the CLI routes these Windows JSON fixtures through the generic JSON decoder. The Windows rule parents require the EventChannel decoder. The Windows Phase 3 excerpts below describe the expected rule match after EventChannel processing. Verify those matches from collected Windows agent events in Discover. Record the event ID, rule ID, agent, and timestamp. Running the script without `--linux-only` retains the strict fixture checks for environments that support EventChannel replay. [Wazuh EventChannel Logtest limitation](https://github.com/wazuh/wazuh/issues/30472)
+
+Use [Active response](07-active-response.md) to verify live SSH alert delivery and enforcement.
 
 ## 100100 · SSH authentication failures from the same source
 
