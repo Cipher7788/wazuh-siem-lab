@@ -3,10 +3,10 @@
 After rule 5763 passes its positive and negative tests, back up the manager's `/var/ossec/etc/ossec.conf`. Merge the inner elements from [the active response snippet](../configs/server/ossec-active-response.xml). If upgrading an existing lab, change `<rules_id>100100</rules_id>` to `<rules_id>5763</rules_id>` in the existing lab response block. Reuse the existing `firewall-drop` command if present and confirm it permits a timeout. Local execution targets the Linux endpoint that generated the alert. The timeout is configured for 300 seconds.
 
 ```bash
-sudo /var/ossec/bin/wazuh-analysisd -t
-sudo /var/ossec/bin/wazuh-execd -t
-sudo systemctl restart wazuh-manager
-sudo /var/ossec/bin/agent_control -lc
+sudo /var/ossec/bin/wazuh-analysisd -t &&
+  sudo /var/ossec/bin/wazuh-execd -t &&
+  sudo systemctl restart wazuh-manager &&
+  sudo /var/ossec/bin/agent_control -lc
 ```
 
 Use the Linux VM console for the [synthetic SSH ingestion exercise](../simulations/01-ssh-bruteforce.md). Verify rule 5763, agent name and decoded `data.srcip` in Discover. On the Linux endpoint, capture firewall state and the response log before the exercise, after the alert, and after the configured timeout.

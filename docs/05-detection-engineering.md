@@ -1,14 +1,14 @@
 # Detection engineering
 
-Apply the [lab rules](../configs/server/local_rules.xml) on the Wazuh manager. Confirm the rule IDs are free and the default local rules directory is enabled. If you previously copied the lab rules into the manager's `local_rules.xml`, remove that lab group from the old file before applying this script. The script manages `/var/ossec/etc/rules/wazuh-siem-lab.xml`, validates the configuration before restart, and restores the previous file if validation or restart fails.
+Apply the [lab rules](../configs/server/local_rules.xml) on the Wazuh manager. Confirm the rule IDs are free and the default local rules directory is enabled. If you previously copied the lab rules into the manager's `local_rules.xml`, remove that lab group from the old file before applying this script. The script manages `/var/ossec/etc/rules/wazuh-siem-lab.xml`, validates the configuration and checks that Wazuh selects the managed file before restart, and restores the previous file if validation or restart fails.
 
 ```bash
-sudo bash scripts/apply-lab-rules.sh
 set -o pipefail
-sudo python3 scripts/test-lab-rules.py --linux-only | tee wazuh-logtest-evidence.txt
+sudo bash scripts/apply-lab-rules.sh &&
+  sudo python3 scripts/test-lab-rules.py --linux-only | tee wazuh-logtest-evidence.txt
 ```
 
-The Python runner opens a fresh Logtest session per case, verifies that each input reaches decoding, and checks the exact input position of every tracked rule match. The SSH threshold case expects rule 5763 only on input eight. The command saves raw output through `tee` and exits nonzero if any selected case fails. To test Linux cases manually, paste each fixture into a fresh `sudo /var/ossec/bin/wazuh-logtest` session.
+Each rule section contains one single-line input in a `text` or `json` code block. Expected output uses `console` blocks. The Python runner opens a fresh Logtest session per case, verifies that each input reaches decoding, and checks the exact input position of every tracked rule match. The SSH threshold case expects rule 5763 only on input eight. The command saves raw output through `tee` and exits nonzero if any selected case fails. To test Linux cases manually, paste each fixture into a fresh `sudo /var/ossec/bin/wazuh-logtest` session.
 
 On Wazuh 4.14.10, the CLI routes these Windows JSON fixtures through the generic JSON decoder. The Windows rule parents require the EventChannel decoder. The Windows Phase 3 excerpts below describe the expected rule match after EventChannel processing. Verify those matches from collected Windows agent events in Discover. Record the event ID, rule ID, agent, and timestamp. Running the script without `--linux-only` retains the strict fixture checks for environments that support EventChannel replay. [Wazuh EventChannel Logtest limitation](https://github.com/wazuh/wazuh/issues/30472)
 
@@ -24,7 +24,7 @@ Oct 15 21:07:00 linux-endpoint sshd[29205]: Failed password for labuser from 192
 
 Expected Phase 3 excerpt
 
-```text
+```console
 id: '5763'
 level: '10'
 description: 'sshd: brute force trying to get access to the system. Authentication failed.'
@@ -40,7 +40,7 @@ MITRE ATT&CK `T1059.001`. Paste the fixture once.
 
 Expected Phase 3 excerpt
 
-```text
+```console
 id: '100110'
 level: '9'
 description: 'Encoded PowerShell command line'
@@ -56,7 +56,7 @@ MITRE ATT&CK `T1003.001`. Inspect the source process and access mask during tria
 
 Expected Phase 3 excerpt
 
-```text
+```console
 id: '100120'
 level: '10'
 description: 'Process access targeting LSASS'
@@ -72,7 +72,7 @@ MITRE ATT&CK `T1053.005`. This fixture uses Security event 4698 and the stock ta
 
 Expected Phase 3 excerpt
 
-```text
+```console
 id: '100130'
 level: '8'
 description: 'Windows scheduled task created'
@@ -88,7 +88,7 @@ MITRE ATT&CK `T1547.001`. Paste the fixture once.
 
 Expected Phase 3 excerpt
 
-```text
+```console
 id: '100140'
 level: '9'
 description: 'Registry Run or RunOnce value set'
@@ -104,7 +104,7 @@ Oct 15 21:08:00 linux-endpoint useradd[3210]: new user: name=wazuhfixture, UID=2
 
 Expected Phase 3 excerpt
 
-```text
+```console
 id: '100150'
 level: '8'
 description: 'Linux local user created'

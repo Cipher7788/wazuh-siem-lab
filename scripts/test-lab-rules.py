@@ -40,15 +40,22 @@ def check_output(output, events, expected_matches):
 
 
 def run_case(label, events, expected_matches):
-    result = subprocess.run(
-        [str(LOGTEST)],
-        input="\n".join(events) + "\n",
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        timeout=45,
-        check=False,
-    )
+    try:
+        result = subprocess.run(
+            [str(LOGTEST)],
+            input="\n".join(events) + "\n",
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=45,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as error:
+        print(f"\n=== {label} ===", flush=True)
+        if error.stdout:
+            print(error.stdout.decode("utf-8", errors="replace"), flush=True)
+        print(f"FAIL: Logtest timed out after {error.timeout} seconds.")
+        return False
     print(f"\n=== {label} ===\n{result.stdout}", flush=True)
     problem = check_output(result.stdout, events, expected_matches)
     if result.returncode != 0 or problem:
@@ -56,6 +63,26 @@ def run_case(label, events, expected_matches):
         return False
     print("PASS")
     return True
+
+
+def read_fixtures(document):
+    fixtures = {}
+    for section in re.split(r"(?m)^## ", document)[1:]:
+        heading = re.match(r"(\d+)\b", section)
+        if not heading:
+            continue
+
+        rule_id = heading.group(1)
+        if rule_id in fixtures:
+            raise SystemExit(f"Duplicate rule heading for {rule_id}.")
+        blocks = re.findall(r"^```(?:text|json)[ \t]*\n(.*?)^```[ \t]*$", section, re.M | re.S)
+        if len(blocks) != 1 or len(blocks[0].splitlines()) != 1 or not blocks[0].strip():
+            raise SystemExit(f"Rule {rule_id} must have exactly one single-line input fixture.")
+        fixtures[rule_id] = blocks[0].removesuffix("\n")
+
+    if set(fixtures) != set(RULE_IDS):
+        raise SystemExit("The detection guide must contain one fixture for each tracked rule.")
+    return fixtures
 
 
 def main():
@@ -68,14 +95,7 @@ def main():
     args = parser.parse_args()
     if not LOGTEST.is_file():
         raise SystemExit("Run this on the lab Wazuh manager after applying the rules.")
-    entries = re.findall(
-        r"^## (5763|100\d{3}) [^\n]+\n(?:(?!^## ).)*?^```(?:text|json)\n([^\n]+)\n```",
-        DOC.read_text(encoding="utf-8"),
-        re.MULTILINE | re.DOTALL,
-    )
-    fixtures = dict(entries)
-    if len(entries) != len(fixtures) or set(fixtures) != set(RULE_IDS):
-        raise SystemExit("The detection guide must contain one fixture for each tracked rule.")
+    fixtures = read_fixtures(DOC.read_text(encoding="utf-8"))
 
     ssh_fixture = fixtures["5763"]
     source = "192.168.56.40"

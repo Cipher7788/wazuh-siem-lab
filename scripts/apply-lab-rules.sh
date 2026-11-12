@@ -35,9 +35,20 @@ restore_rules() {
 }
 
 mv -f -- "$backup/next" "$target"
-if ! "$analysisd" -t; then
+if ! validation=$("$analysisd" -t -d 2>&1); then
+    printf '%s\n' "$validation" >&2
     restore_rules
     printf 'Wazuh rejected the configuration. The previous rules were restored.\n' >&2
+    exit 1
+fi
+
+# The rule reader logs each file selected by Wazuh's effective ruleset in debug mode.
+rulefile=${target#/var/ossec/}
+if ! grep -Fq -e "DEBUG: $rulefile is the rulefile" \
+    -e "DEBUG: ./$rulefile is the rulefile" \
+    -e "DEBUG: /$rulefile is the rulefile" <<< "$validation"; then
+    restore_rules
+    printf 'Wazuh did not select %s. Check the ruleset includes and exclusions.\n' "$rulefile" >&2
     exit 1
 fi
 
