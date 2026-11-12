@@ -1,11 +1,4 @@
 <group name="wazuh_siem_lab,">
-  <rule id="100100" level="12" frequency="8" timeframe="60">
-    <if_matched_sid>5760</if_matched_sid>
-    <same_srcip />
-    <description>SSH authentication failures from the same source</description>
-    <mitre><id>T1110</id></mitre>
-  </rule>
-
   <rule id="100110" level="9">
     <if_sid>61603</if_sid>
     <field name="win.eventdata.image" type="pcre2">(?i)(?:^|\\)(?:powershell|pwsh)\.exe$</field>

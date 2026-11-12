@@ -25,7 +25,7 @@ Add Discover filters one at a time. Record UTC boundaries, raw event references,
 | --- | --- | --- |
 | `agent.name` | `linux-endpoint` | Reconstruct the endpoint timeline |
 | `data.srcip` | `192.168.56.40` | Find SSH events attributed to the same source |
-| `rule.id` | `100100` | Compare all matches for the correlation rule |
+| `rule.id` | `5763` | Compare all matches for the correlation rule |
 | `data.win.eventdata.image` | PowerShell executable path from the alert | Compare execution context across Windows events |
 
 For Sysmon process access, pivot on `data.win.eventdata.sourceImage` and `data.win.eventdata.targetImage`. For file integrity, pivot on the affected path. Treat synthetic fixture indicators as exercise data.

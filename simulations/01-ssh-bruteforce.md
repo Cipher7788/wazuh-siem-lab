@@ -8,7 +8,7 @@ Validate correlation and, optionally, the endpoint firewall response.
 
 ## Prerequisites and procedure
 
-First run the [100100 Logtest fixture](../docs/05-detection-engineering.md). For ingestion, use the Linux endpoint's console, confirm the manager reports the agent active, and create an empty dedicated file before adding this temporary agent input.
+First run the [5763 Logtest fixture](../docs/05-detection-engineering.md). For ingestion, use the Linux endpoint's console, confirm the manager reports the agent active, and create an empty dedicated file before adding this temporary agent input.
 
 ```bash
 sudo install -m 0644 /dev/null /var/log/wazuh-lab-ssh-fixture.log
@@ -31,13 +31,13 @@ for port in {48928..48935}; do
 done | sudo tee -a /var/log/wazuh-lab-ssh-fixture.log >/dev/null
 ```
 
-Check Discover for agent `linux-endpoint`, source `192.168.56.40`, and rule 100100. If enabled, follow [Active response](../docs/07-active-response.md).
+Check Discover for agent `linux-endpoint`, source `192.168.56.40`, and rule 5763. If enabled, follow [Active response](../docs/07-active-response.md).
 
 ## Expected detection
 
 | Rule IDs | MITRE ATT&CK |
 | --- | --- |
-| 100100 | T1110 |
+| 5763 | T1110 |
 
 ## Cleanup
 

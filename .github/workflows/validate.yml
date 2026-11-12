@@ -25,3 +25,4 @@ jobs:
           xmllint --noout configs/{server,windows,linux}/*.xml
           shellcheck scripts/*.sh
           python3 -m py_compile scripts/test-lab-rules.py
+          python3 scripts/test_lab_rules_unit.py
