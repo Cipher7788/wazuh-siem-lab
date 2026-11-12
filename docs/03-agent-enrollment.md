@@ -18,6 +18,15 @@ $agentMsi = Read-Host 'Path to official agent MSI'
 Get-Service WazuhSvc
 ```
 
+Run `Get-ExecutionPolicy` to check the effective PowerShell policy. If it blocks the repository script, run the [official Windows MSI installation](https://documentation.wazuh.com/current/installation-guide/wazuh-agent/wazuh-agent-package-windows.html) directly from an administrator Command Prompt. Replace the example path with the verified MSI path.
+
+```cmd
+start "" /wait msiexec.exe /i "C:\path\to\wazuh-agent.msi" /qn /norestart WAZUH_MANAGER=192.168.56.10 WAZUH_REGISTRATION_SERVER=192.168.56.10 WAZUH_AGENT_NAME=win-endpoint
+echo %ERRORLEVEL%
+```
+
+On exit code 0, run `net start WazuhSvc`. On exit code 3010, reboot and check the service before starting it manually if needed. For other exit codes, check the installer error before starting the service.
+
 **Manager**
 
 ```bash

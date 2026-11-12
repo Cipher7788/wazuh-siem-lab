@@ -9,7 +9,7 @@ from pathlib import Path
 
 LOGTEST = Path("/var/ossec/bin/wazuh-logtest")
 DOC = Path(__file__).resolve().parents[1] / "docs/05-detection-engineering.md"
-RULE_IDS = ("100100", "100110", "100120", "100130", "100140", "100150")
+RULE_IDS = ("5763", "100110", "100120", "100130", "100140", "100150")
 
 
 def check_output(output, events, expected_matches):
@@ -68,17 +68,16 @@ def main():
     args = parser.parse_args()
     if not LOGTEST.is_file():
         raise SystemExit("Run this on the lab Wazuh manager after applying the rules.")
-    fixtures = dict(
-        re.findall(
-            r"^## (100\d{3}) [^\n]+\n.*?^```(?:text|json)\n([^\n]+)\n```",
-            DOC.read_text(encoding="utf-8"),
-            re.MULTILINE | re.DOTALL,
-        )
+    entries = re.findall(
+        r"^## (5763|100\d{3}) [^\n]+\n(?:(?!^## ).)*?^```(?:text|json)\n([^\n]+)\n```",
+        DOC.read_text(encoding="utf-8"),
+        re.MULTILINE | re.DOTALL,
     )
-    if set(fixtures) != set(RULE_IDS):
-        raise SystemExit("The detection guide must contain one fixture for each lab rule.")
+    fixtures = dict(entries)
+    if len(entries) != len(fixtures) or set(fixtures) != set(RULE_IDS):
+        raise SystemExit("The detection guide must contain one fixture for each tracked rule.")
 
-    ssh_fixture = fixtures["100100"]
+    ssh_fixture = fixtures["5763"]
     source = "192.168.56.40"
     if source not in ssh_fixture:
         raise SystemExit("The documented SSH fixture source has changed.")
@@ -88,7 +87,7 @@ def main():
     checks = [
         ("SSH below threshold", [ssh_fixture] * 7, []),
         ("SSH mixed source addresses", mixed_sources, []),
-        ("SSH at threshold", [ssh_fixture] * 8, [(8, "100100")]),
+        ("SSH at threshold", [ssh_fixture] * 8, [(8, "5763")]),
     ]
     rule_ids = ("100150",) if args.linux_only else RULE_IDS[1:]
     checks.extend((rule_id, [fixtures[rule_id]], [(1, rule_id)]) for rule_id in rule_ids)

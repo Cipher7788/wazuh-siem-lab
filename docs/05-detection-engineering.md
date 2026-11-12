@@ -8,15 +8,15 @@ set -o pipefail
 sudo python3 scripts/test-lab-rules.py --linux-only | tee wazuh-logtest-evidence.txt
 ```
 
-The Python runner opens a fresh Logtest session per case, verifies that each input reaches decoding, and checks the exact input position of every lab rule match. The SSH threshold case expects rule 100100 only on input eight. The command saves raw output through `tee` and exits nonzero if any selected case fails. To test Linux cases manually, paste each fixture into a fresh `sudo /var/ossec/bin/wazuh-logtest` session.
+The Python runner opens a fresh Logtest session per case, verifies that each input reaches decoding, and checks the exact input position of every tracked rule match. The SSH threshold case expects rule 5763 only on input eight. The command saves raw output through `tee` and exits nonzero if any selected case fails. To test Linux cases manually, paste each fixture into a fresh `sudo /var/ossec/bin/wazuh-logtest` session.
 
 On Wazuh 4.14.10, the CLI routes these Windows JSON fixtures through the generic JSON decoder. The Windows rule parents require the EventChannel decoder. The Windows Phase 3 excerpts below describe the expected rule match after EventChannel processing. Verify those matches from collected Windows agent events in Discover. Record the event ID, rule ID, agent, and timestamp. Running the script without `--linux-only` retains the strict fixture checks for environments that support EventChannel replay. [Wazuh EventChannel Logtest limitation](https://github.com/wazuh/wazuh/issues/30472)
 
 Use [Active response](07-active-response.md) to verify live SSH alert delivery and enforcement.
 
-## 100100 · SSH authentication failures from the same source
+## 5763 · SSH authentication failures from the same source
 
-MITRE ATT&CK `T1110`. Paste this line eight times within 60 seconds in the same session. Check Phase 2 for the source IP. In separate fresh sessions, try seven identical events and eight events with distinct sources. Neither negative case should produce 100100. The password-failure parent is 5760. If the installed ruleset selects a stock correlation rule at the threshold, check rule precedence before enabling active response.
+MITRE ATT&CK `T1110`. Paste this line eight times within 120 seconds in the same session. Check Phase 2 for the source IP. In separate fresh sessions, try seven identical events and eight events with distinct sources. Neither negative case should produce 5763. The lab uses stock rule 5763, which correlates password-failure rule 5760. Reapplying the lab rules removes the retired custom SSH rule from the managed file. If you previously enabled active response, update its rule ID as described in [Active response](07-active-response.md).
 
 ```text
 Oct 15 21:07:00 linux-endpoint sshd[29205]: Failed password for labuser from 192.168.56.40 port 48928 ssh2
@@ -25,9 +25,9 @@ Oct 15 21:07:00 linux-endpoint sshd[29205]: Failed password for labuser from 192
 Expected Phase 3 excerpt
 
 ```text
-id: '100100'
-level: '12'
-description: 'SSH authentication failures from the same source'
+id: '5763'
+level: '10'
+description: 'sshd: brute force trying to get access to the system. Authentication failed.'
 ```
 
 ## 100110 · Encoded PowerShell command line
